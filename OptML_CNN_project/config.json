@@ -1,0 +1,6 @@
+{
+    "BATCH_SIZE": 32,
+    "NUM_EPOCHS": 20,
+    "verbose": 0,
+    "plot": 0
+}
