@@ -11,14 +11,14 @@ class CNN(nn.Module):
     def __init__(self):
         """Initialize layers."""
         super().__init__()
-        self.conv1 = nn.Conv2d(3 , 16, 5, padding=1) # https://docs.pytorch.org/docs/stable/generated/torch.nn.Conv2d.html#torch.nn.Conv2d
+        self.conv1 = nn.Conv2d(1 , 16, 5, padding=1) # https://docs.pytorch.org/docs/stable/generated/torch.nn.Conv2d.html#torch.nn.Conv2d
         self.conv2 = nn.Conv2d(16, 32, 5, padding=1)
 
         self.pool = nn.MaxPool2d(4, 4) # https://docs.pytorch.org/docs/stable/generated/torch.nn.MaxPool2d.html#torch.nn.MaxPool2d
 
-        self.fc1 = nn.Linear(32 * 2 * 2, 256) # https://docs.pytorch.org/docs/stable/generated/torch.nn.Linear.html#torch.nn.Linear
+        self.fc1 = nn.Linear(32 * 7 * 7, 256) # https://docs.pytorch.org/docs/stable/generated/torch.nn.Linear.html#torch.nn.Linear
         self.fc2 = nn.Linear(256, 6 * 5)
-        self.fc3 = nn.Linear(6 * 5, 6)
+        self.fc3 = nn.Linear(6 * 5, 2)
 
         self.leakyrelu = nn.LeakyReLU() # https://docs.pytorch.org/docs/stable/generated/torch.nn.LeakyReLU.html
         
@@ -54,7 +54,7 @@ class CNN(nn.Module):
         ckpt = torch.load(fname, weights_only=True)
         self.load_state_dict(ckpt)
 
-def get_loss_function():
+def get_criterion():
     """
     Return the loss function to use during training. We use
         the Cross-Entropy loss for now.
