@@ -1,5 +1,6 @@
 import argparse
 import optuna
+import json
 
 from tasks.task_0_baseline_cnn import *
 from tasks.task_1_hyperparameter import *
@@ -12,14 +13,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     study_name = "fracture_classification"
-    best_search_optuna = f"sqlite:///best_search_optuna.db"
+    best_search_optuna = f"sqlite:///tasks/task_1_hyperparameter/results/best_search_optuna.db"
 
     if args.mode == "search":
-        study = optuna.create_study(study_name=study_name, storage=best_search_optuna, direction="maximize")
+        study = optuna.create_study(study_name=study_name, storage=best_search_optuna, load_if_exists=True, direction="maximize")
     
         study.optimize(objective, n_trials=args.n_trials)
 
-        with open("best_params.json", "w") as f:
+        with open("tasks/task_1_hyperparameter/results/best_params.json", "w") as f:
             json.dump(study.best_params, f, indent=4)
         
         print("Best trial:")
