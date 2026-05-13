@@ -23,11 +23,15 @@ def objective(trial):
     verbose = parsed["verbose"]
 
     # Load ASB dataset
-    train_dataset = load_dataset("ASB", "train")
-    val_dataset = load_dataset("ASB", "val")
-    test_dataset = load_dataset("ASB", "test")
+    # train_dataset = load_dataset("ASB", "train")
+    train_dataset = load_dataset("NT", "train")
+    val_dataset = load_dataset("NT", "val")
+    test_dataset = load_dataset("NT", "test")
     # Using torchvision transforms with the custom Dataset.
     # Define augmentation transforms
+    # base_transform = T.Compose([
+    #     T.Normalize(mean=[0.5], std=[0.5])
+    # ])
     # train_transform = T.Compose([
     #     T.RandomHorizontalFlip(p=0.5),
     #     T.RandomRotation(degrees=10),
@@ -36,11 +40,9 @@ def objective(trial):
     # ])
     # # Create dataset with transforms
     # # train_dataset_aug = ImageClassificationDataset(
-    # train_dataset = ImageClassificationDataset(
-    #     category="ASB", 
-    #     split="train", 
-    #     transform=train_transform
-    # )
+    # train_dataset = ImageClassificationDataset(category="ASB", split="train", transform=train_transform)
+    # val_dataset = ImageClassificationDataset(category="ASB", split="val", transform=base_transform)
+    # test_dataset = ImageClassificationDataset(category="ASB", split="test", transform=base_transform)
 
     # Create model
     model = CNN()
