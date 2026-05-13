@@ -29,6 +29,7 @@ def train_model(
         run_loss = 0.0
         for i, data in enumerate(train_loader, 0):
             inputs, labels = data
+            inputs, labels = inputs.to(device), labels.to(device)
 
             optimizer.zero_grad()
             outputs = model(inputs)
@@ -51,7 +52,7 @@ def train_model(
 
         run_loss = 0.0
         for i, data in enumerate(val_loader, 0):
-            # inputs, labels = data
+            inputs, labels = data
             inputs, labels = inputs.to(device), labels.to(device)
 
             with torch.no_grad():
@@ -120,26 +121,9 @@ def main(best_params):
     NUM_EPOCHS = best_params["num_epochs"]
     verbose = parsed["verbose"]
 
-    # Example: Load ASB dataset
-    train_dataset = load_dataset("ASB", "train")
+    # Load ASB dataset
     val_dataset = load_dataset("ASB", "val")
     test_dataset = load_dataset("ASB", "test")
-
-    if verbose:
-        print(f"Train dataset size: {len(train_dataset)}")
-        print(f"Val dataset size: {len(val_dataset)}")
-        print(f"Test dataset size: {len(test_dataset)}")
-        # Test iteration
-        for batch_images, batch_labels in train_loader:
-            print(f"Batch images shape: {batch_images.shape}")  # (32, 1, 128, 128)
-            print(f"Batch labels shape: {batch_labels.shape}")  # (32,)
-            print(f"Image dtype: {batch_images.dtype}")
-            print(f"Label dtype: {batch_labels.dtype}")
-            break
-
-    # Example usage with custom Dataset
-    train_dataset = ImageClassificationDataset("ASB", "train")
-
     # Using torchvision transforms with the custom Dataset.
     # Define augmentation transforms
     train_transform = T.Compose([
@@ -147,7 +131,6 @@ def main(best_params):
         T.RandomRotation(degrees=10),
         T.RandomAffine(degrees=0, translate=(0.1, 0.1)),
     ])
-
     # Create dataset with transforms
     # train_dataset_aug = ImageClassificationDataset(
     train_dataset = ImageClassificationDataset(
@@ -172,6 +155,18 @@ def main(best_params):
     model = model.to(device)
     criterion = get_criterion()
     optimizer = get_optimizer(model, lr=best_params["lr"], momentum=best_params["momentum"], mode=best_params["optimizer"])
+
+    if verbose:
+        print(f"Train dataset size: {len(train_dataset)}")
+        print(f"Val dataset size: {len(val_dataset)}")
+        print(f"Test dataset size: {len(test_dataset)}")
+        # Test iteration
+        for batch_images, batch_labels in train_loader:
+            print(f"Batch images shape: {batch_images.shape}")  # (32, 1, 128, 128)
+            print(f"Batch labels shape: {batch_labels.shape}")  # (32,)
+            print(f"Image dtype: {batch_images.dtype}")
+            print(f"Label dtype: {batch_labels.dtype}")
+            break
 
     # Load data
     train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
