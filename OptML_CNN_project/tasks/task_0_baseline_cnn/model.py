@@ -99,26 +99,31 @@ class CNN(nn.Module):
         self.conv3 = nn.Conv2d(32, 64, 3, padding=1)
         self.conv4 = nn.Conv2d(64, 128, 3, padding=1)
 
+        self.bn1 = nn.BatchNorm2d(16)
+        self.bn2 = nn.BatchNorm2d(32)
+        self.bn3 = nn.BatchNorm2d(64)
+        self.bn4 = nn.BatchNorm2d(128)
+
         self.pool = nn.MaxPool2d(2, 2) # https://docs.pytorch.org/docs/stable/generated/torch.nn.MaxPool2d.html#torch.nn.MaxPool2d
 
         self.fc1 = nn.Linear(128 * 8 * 8, 256) # https://docs.pytorch.org/docs/stable/generated/torch.nn.Linear.html#torch.nn.Linear
-        self.fc2 = nn.Linear(256, 30)
-        self.fc3 = nn.Linear(30, 2)
+        self.fc2 = nn.Linear(256, 64)
+        self.fc3 = nn.Linear(64, 2)
 
-        self.dropout = nn.Dropout(0.1)
+        self.dropout = nn.Dropout(0.3)
 
         self.leakyrelu = nn.LeakyReLU() # https://docs.pytorch.org/docs/stable/generated/torch.nn.LeakyReLU.html
         
     def forward(self, x):
         """Forward pass of network."""
         # Conv block 1
-        x = self.pool(self.leakyrelu(self.conv1(x)))
+        x = self.pool(self.leakyrelu(self.bn1(self.conv1(x))))
         # Conv block 2
-        x = self.pool(self.leakyrelu(self.conv2(x)))
+        x = self.pool(self.leakyrelu(self.bn2(self.conv2(x))))
         # Conv block 3
-        x = self.pool(self.leakyrelu(self.conv3(x)))
+        x = self.pool(self.leakyrelu(self.bn3(self.conv3(x))))
         # Conv block 4
-        x = self.pool(self.leakyrelu(self.conv4(x)))
+        x = self.pool(self.leakyrelu(self.bn4(self.conv4(x))))
 
         # Flatten
         x = torch.flatten(x, 1) # flatten all dimensions except batch
