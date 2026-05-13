@@ -24,4 +24,4 @@ pip3 install -r requirements.txt
 cd OptML_CNN_project
 
 # Run the program
-python3 main.py -n_trials=100
+python3 main.py -n_trials=20
