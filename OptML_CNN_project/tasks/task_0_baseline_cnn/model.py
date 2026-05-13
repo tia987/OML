@@ -94,26 +94,31 @@ class CNN(nn.Module):
     def __init__(self):
         """Initialize layers."""
         super().__init__()
-        self.conv1 = nn.Conv2d(1 , 16, 5, padding=1) # https://docs.pytorch.org/docs/stable/generated/torch.nn.Conv2d.html#torch.nn.Conv2d
-        self.conv2 = nn.Conv2d(16, 32, 5, padding=1)
+        self.conv1 = nn.Conv2d(1 , 16, 3, padding=1) # https://docs.pytorch.org/docs/stable/generated/torch.nn.Conv2d.html#torch.nn.Conv2d
+        self.conv2 = nn.Conv2d(16, 32, 3, padding=1)
+        self.conv3 = nn.Conv2d(32, 64, 3, padding=1)
+        self.conv4 = nn.Conv2d(64, 128, 3, padding=1)
 
-        self.pool = nn.MaxPool2d(4, 4) # https://docs.pytorch.org/docs/stable/generated/torch.nn.MaxPool2d.html#torch.nn.MaxPool2d
+        self.pool = nn.MaxPool2d(2, 2) # https://docs.pytorch.org/docs/stable/generated/torch.nn.MaxPool2d.html#torch.nn.MaxPool2d
 
-        self.fc1 = nn.Linear(32 * 7 * 7, 256) # https://docs.pytorch.org/docs/stable/generated/torch.nn.Linear.html#torch.nn.Linear
-        self.fc2 = nn.Linear(256, 6 * 5)
-        self.fc3 = nn.Linear(6 * 5, 2)
+        self.fc1 = nn.Linear(128 * 8 * 8, 256) # https://docs.pytorch.org/docs/stable/generated/torch.nn.Linear.html#torch.nn.Linear
+        self.fc2 = nn.Linear(256, 30)
+        self.fc3 = nn.Linear(30, 2)
+
+        self.dropout = nn.Dropout(0.5)
 
         self.leakyrelu = nn.LeakyReLU() # https://docs.pytorch.org/docs/stable/generated/torch.nn.LeakyReLU.html
         
     def forward(self, x):
         """Forward pass of network."""
         # Conv block 1
-        x = self.leakyrelu(self.conv1(x))
-        x = self.pool(x)
-
+        x = self.pool(self.leakyrelu(self.conv1(x)))
         # Conv block 2
-        x = self.leakyrelu(self.conv2(x))
-        x = self.pool(x)
+        x = self.pool(self.leakyrelu(self.conv2(x)))
+        # Conv block 3
+        x = self.pool(self.leakyrelu(self.conv3(x)))
+        # Conv block 4
+        x = self.pool(self.leakyrelu(self.conv4(x)))
 
         # Flatten
         x = torch.flatten(x, 1) # flatten all dimensions except batch
@@ -121,6 +126,7 @@ class CNN(nn.Module):
         # Classifier
         x = self.leakyrelu(self.fc1(x))
         x = self.leakyrelu(self.fc2(x))
+        x = self.dropout(x)
         x = self.fc3(x)
 
         return x
