@@ -17,6 +17,7 @@ def train_model(
     device, 
     save_path=f"./model.pt",
     plot=False,
+    save_model=False
 ):
     training_loss_per_epoch = []
     val_loss_per_epoch = []
@@ -67,7 +68,7 @@ def train_model(
             f' Validation loss: {mean_loss:.3f}'
         )
 
-        if mean_loss < best_val_loss:
+        if mean_loss < best_val_loss and save_model:
             best_val_loss = mean_loss
             torch.save(model.state_dict(), save_path)
             print("Model saved!")
@@ -177,7 +178,7 @@ def main(best_params):
     val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
     test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
-    train_model(model, train_loader, val_loader, NUM_EPOCHS, optimizer, criterion, device, plot=parsed["plot"])
+    train_model(model, train_loader, val_loader, NUM_EPOCHS, optimizer, criterion, device, plot=parsed["plot"], save_model=True)
     accuracy = test_model(model, test_loader, device)
     
     return accuracy
