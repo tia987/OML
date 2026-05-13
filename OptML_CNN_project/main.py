@@ -1,9 +1,18 @@
 import argparse
 import optuna
 import json
+import os
+
+import matplotlib.pyplot as plt
 
 from tasks.task_0_baseline_cnn import *
 from tasks.task_1_hyperparameter import *
+
+from optuna.visualization.matplotlib import (
+    plot_optimization_history,
+    plot_param_importances,
+)
+
 
 if __name__ == "__main__":
     # Get parser arguments
@@ -30,13 +39,23 @@ if __name__ == "__main__":
         for key, value in trial.params.items():
             print(f"    {key}: {value}")
 
-        # Save Optimization History
-        fig_history = optuna.visualization.plot_optimization_history(study)
-        fig_history.write_image("optimization_history.png")
+         # Save Optimization History
+        fig1 = plot_optimization_history(study)
+        fig1.figure.savefig(
+            os.path.join(".", "optimization_history.png"),
+            dpi=300,
+            bbox_inches="tight",
+        )
+        plt.close(fig1.figure)
 
         # Save Parameter Importances
-        fig_importance = optuna.visualization.plot_param_importances(study)
-        fig_importance.write_image("param_importances.png")
+        fig2 = plot_param_importances(study)
+        fig2.figure.savefig(
+            os.path.join(".", "param_importances.png"),
+            dpi=300,
+            bbox_inches="tight",
+        )
+        plt.close(fig2.figure)
 
     elif args.mode == "train":
         try:
