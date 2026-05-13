@@ -18,6 +18,5 @@ SRC = ""
 def parser():
     with open(ROOT_DIR/'config.json') as file:
         parsed = json.load(file)
-        print(parsed)
 
     return parsed
