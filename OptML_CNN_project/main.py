@@ -1,6 +1,7 @@
 import argparse
 import optuna
 import json
+import kaleido
 
 from tasks.task_0_baseline_cnn import *
 from tasks.task_1_hyperparameter import *
@@ -30,8 +31,13 @@ if __name__ == "__main__":
         for key, value in trial.params.items():
             print(f"    {key}: {value}")
 
-        optuna.visualization.plot_optimization_history(study).show()
-        optuna.visualization.plot_param_importances(study).show()
+        # Save Optimization History
+        fig_history = optuna.visualization.plot_optimization_history(study)
+        fig_history.write_image("optimization_history.png")
+
+        # Save Parameter Importances
+        fig_importance = optuna.visualization.plot_param_importances(study)
+        fig_importance.write_image("param_importances.png")
 
     elif args.mode == "train":
         try:
