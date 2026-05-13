@@ -122,22 +122,24 @@ def main(best_params):
     verbose = parsed["verbose"]
 
     # Load ASB dataset
+    train_dataset = load_dataset("ASB", "train")
     val_dataset = load_dataset("ASB", "val")
     test_dataset = load_dataset("ASB", "test")
     # Using torchvision transforms with the custom Dataset.
     # Define augmentation transforms
-    train_transform = T.Compose([
-        T.RandomHorizontalFlip(p=0.5),
-        T.RandomRotation(degrees=10),
-        T.RandomAffine(degrees=0, translate=(0.1, 0.1)),
-    ])
-    # Create dataset with transforms
-    # train_dataset_aug = ImageClassificationDataset(
-    train_dataset = ImageClassificationDataset(
-        category="ASB", 
-        split="train", 
-        transform=train_transform
-    )
+    # train_transform = T.Compose([
+    #     T.RandomHorizontalFlip(p=0.5),
+    #     T.RandomRotation(degrees=10),
+    #     T.RandomAffine(degrees=0, translate=(0.1, 0.1)),
+    #     T.Normalize(mean=[0.5], std=[0.5]),
+    # ])
+    # # Create dataset with transforms
+    # # train_dataset_aug = ImageClassificationDataset(
+    # train_dataset = ImageClassificationDataset(
+    #     category="ASB", 
+    #     split="train", 
+    #     transform=train_transform
+    # )
 
     # Test augmentation
     if verbose:

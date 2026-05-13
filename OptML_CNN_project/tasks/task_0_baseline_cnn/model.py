@@ -105,7 +105,7 @@ class CNN(nn.Module):
         self.fc2 = nn.Linear(256, 30)
         self.fc3 = nn.Linear(30, 2)
 
-        self.dropout = nn.Dropout(0.5)
+        self.dropout = nn.Dropout(0.1)
 
         self.leakyrelu = nn.LeakyReLU() # https://docs.pytorch.org/docs/stable/generated/torch.nn.LeakyReLU.html
         
@@ -125,6 +125,7 @@ class CNN(nn.Module):
 
         # Classifier
         x = self.leakyrelu(self.fc1(x))
+        x = self.dropout(x)
         x = self.leakyrelu(self.fc2(x))
         x = self.dropout(x)
         x = self.fc3(x)

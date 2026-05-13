@@ -1,7 +1,6 @@
 import argparse
 import optuna
 import json
-import kaleido
 
 from tasks.task_0_baseline_cnn import *
 from tasks.task_1_hyperparameter import *
