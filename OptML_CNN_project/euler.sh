@@ -14,9 +14,6 @@
 module load stack/2025-06 gcc/12.2.0 python/3.13.0 eth_proxy
 module list
 
-# Load environment
-source installation.sh
-
 # Install required packages (source ./installation.sh)
 python3 -m venv .venv
 source .venv/bin/activate
