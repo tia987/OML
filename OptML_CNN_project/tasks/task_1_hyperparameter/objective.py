@@ -23,20 +23,8 @@ def objective(trial):
     verbose = parsed["verbose"]
 
     # Example: Load ASB dataset
-    train_dataset = load_dataset("ASB", "train")
     val_dataset = load_dataset("ASB", "val")
     test_dataset = load_dataset("ASB", "test")
-
-    # Example usage with custom Dataset
-    train_dataset = ImageClassificationDataset("ASB", "train")
-
-    # Get a single sample
-    if verbose:
-        image, label = train_dataset[0]
-        print(f"\nSingle sample:")
-        print(f"  Image shape: {image.shape}")
-        print(f"  Label: {label}")
-
     # Using torchvision transforms with the custom Dataset.
     # Define augmentation transforms
     train_transform = T.Compose([
@@ -44,7 +32,6 @@ def objective(trial):
         T.RandomRotation(degrees=10),
         T.RandomAffine(degrees=0, translate=(0.1, 0.1)),
     ])
-
     # Create dataset with transforms
     train_dataset = ImageClassificationDataset(
         category="ASB", 
