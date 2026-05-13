@@ -1,9 +1,11 @@
-from tqdm import tqdm
-import matplotlib.pyplot as plt
-
 import torch
 
+import matplotlib.pyplot as plt
 import numpy as np
+import torchvision.transforms as T
+
+from src.loader import *
+from torch.utils.data import DataLoader
 
 def train_model(
     model,
@@ -105,4 +107,77 @@ def test_model(model, test_loader, device):
 
     accuracy = 100 * correct / total
     print(f'Accuracy on the held-out test set: {accuracy:.2f}%')
+    return accuracy
+
+def main(best_params):
+    """Function to train the final model using the best found parameters."""
+    print(f"--- Training final model with best params: {best_params} ---")
+
+    # Create DataLoaders
+    parsed = parser() 
+    BATCH_SIZE = best_params["batch_size"]
+    NUM_EPOCHS = best_params["num_epochs"]
+    verbose = parsed["verbose"]
+
+    # Example: Load ASB dataset
+    train_dataset = load_dataset("ASB", "train")
+    val_dataset = load_dataset("ASB", "val")
+    test_dataset = load_dataset("ASB", "test")
+
+    if verbose:
+        print(f"Train dataset size: {len(train_dataset)}")
+        print(f"Val dataset size: {len(val_dataset)}")
+        print(f"Test dataset size: {len(test_dataset)}")
+        # Test iteration
+        for batch_images, batch_labels in train_loader:
+            print(f"Batch images shape: {batch_images.shape}")  # (32, 1, 128, 128)
+            print(f"Batch labels shape: {batch_labels.shape}")  # (32,)
+            print(f"Image dtype: {batch_images.dtype}")
+            print(f"Label dtype: {batch_labels.dtype}")
+            break
+
+    # Example usage with custom Dataset
+    train_dataset = ImageClassificationDataset("ASB", "train")
+
+    # Using torchvision transforms with the custom Dataset.
+    # Define augmentation transforms
+    train_transform = T.Compose([
+        T.RandomHorizontalFlip(p=0.5),
+        T.RandomRotation(degrees=10),
+        T.RandomAffine(degrees=0, translate=(0.1, 0.1)),
+    ])
+
+    # Create dataset with transforms
+    # train_dataset_aug = ImageClassificationDataset(
+    train_dataset = ImageClassificationDataset(
+        category="ASB", 
+        split="train", 
+        transform=train_transform
+    )
+
+    # Test augmentation
+    if verbose:
+        image_aug, label = train_dataset[0]
+        print(f"Augmented image shape: {image_aug.shape}")
+
+    # Create model
+    model = CNN()
+
+    # Training setup
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if verbose:
+        print(f"Using device: {device}")
+
+    model = model.to(device)
+    criterion = get_criterion()
+    optimizer = get_optimizer(model, lr=best_params["lr"], momentum=best_params["momentum"], mode=best_params["optimizer"])
+
+    # Load data
+    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
+    test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
+
+    train_model(model, train_loader, val_loader, NUM_EPOCHS, optimizer, criterion, device, plot=parsed["plot"])
+    accuracy = test_model(model, test_loader, device)
+    
     return accuracy
