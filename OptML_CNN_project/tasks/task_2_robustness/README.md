@@ -13,13 +13,13 @@ $\sigma \in \{0.00, 0.05, 0.10, 0.15, 0.20, 0.30, 0.50\}$
 
 | $\sigma$ (Noise Level) | Accuracy (%) |
 | :--- | :--- |
-| **0.00** (Baseline) | `[Insert %]` |
-| **0.05** | `[Insert %]` |
-| **0.10** | `[Insert %]` |
-| **0.15** | `[Insert %]` |
-| **0.20** | `[Insert %]` |
-| **0.30** | `[Insert %]` |
-| **0.50** | `[Insert %]` |
+| **0.00** (Baseline) | `[99 %]` |
+| **0.05** | `[85 %]` |
+| **0.10** | `[56 %]` |
+| **0.15** | `[50 %]` |
+| **0.20** | `[50 %]` |
+| **0.30** | `[50 %]` |
+| **0.50** | `[50 %]` |
 
 *Please refer to the visual report in this directory:*
 * ![Noise Robustness Plot](./figures/noise_robustness_plot.png) *(Displays the model's test accuracy as a function of the Gaussian noise level)*
