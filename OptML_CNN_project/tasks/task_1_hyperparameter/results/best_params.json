@@ -1,7 +1,7 @@
 {
-    "lr": 0.005227115865823063,
+    "lr": 0.0010666286480155401,
     "batch_size": 16,
-    "optimizer": "SGD",
-    "num_epochs": 16,
-    "momentum": 0.7
+    "optimizer": "Adam",
+    "num_epochs": 64,
+    "momentum": 0.9
 }
