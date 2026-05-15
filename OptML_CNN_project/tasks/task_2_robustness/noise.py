@@ -17,7 +17,7 @@ def plot_noise(noise_sigma, accuracy):
     plt.plot(noise_sigma, accuracy, marker='o', linestyle='-', color='b', linewidth=2)
     
     plt.title('Model Accuracy vs. Gaussian Noise Level', fontsize=14)
-    plt.xlabel('Noise Sigma)', fontsize=12)
+    plt.xlabel('Noise Sigma', fontsize=12)
     plt.ylabel('Test Accuracy (%)', fontsize=12)
     plt.grid(True, linestyle='--', alpha=0.7)
     
