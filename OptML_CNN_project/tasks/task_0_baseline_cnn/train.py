@@ -1,4 +1,5 @@
 import torch
+import time
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -141,9 +142,18 @@ def main(best_params):
     val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
     test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
-    train_model(model, train_loader, val_loader, NUM_EPOCHS, optimizer, criterion, device, plot=parsed["plot"], save_model=True)
-    accuracy = test_model(model, test_loader, device)
+    start_time = time.time()
+    
+    train_model(model, train_loader, val_loader, NUM_EPOCHS, optimizer, criterion, device, plot=True, save_model=True)
+    
+    end_time = time.time()
+    training_duration = end_time - start_time
 
+    accuracy = test_model(model, test_loader, device)
+    
+    print(f"\n--- Training Statistics ---")
+    print(f"Total Training Time: {training_duration:.2f} seconds")
+    print(f"Final Test Accuracy: {accuracy:.2f}%")
 
     if verbose:
         image_aug, label = train_dataset[0]
