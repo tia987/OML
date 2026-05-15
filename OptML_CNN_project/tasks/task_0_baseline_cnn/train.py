@@ -2,7 +2,6 @@ import torch
 
 import matplotlib.pyplot as plt
 import numpy as np
-import torchvision.transforms as T
 
 from src.loader import *
 from torch.utils.data import DataLoader
@@ -126,41 +125,30 @@ def main(best_params):
     train_dataset = load_dataset("NT", "train")
     val_dataset = load_dataset("NT", "val")
     test_dataset = load_dataset("NT", "test")
-    # Using torchvision transforms with the custom Dataset.
-    # Define augmentation transforms
-    # base_transform = T.Compose([
-    #     T.Normalize(mean=[0.5], std=[0.5])
-    # ])
-    # train_transform = T.Compose([
-    #     T.RandomHorizontalFlip(p=0.5),
-    #     T.RandomRotation(degrees=10),
-    #     T.RandomAffine(degrees=0, translate=(0.1, 0.1)),
-    #     T.Normalize(mean=[0.5], std=[0.5]),
-    # ])
-    # # Create dataset with transforms
-    # # train_dataset_aug = ImageClassificationDataset(
-    # train_dataset = ImageClassificationDataset(category="ASB", split="train", transform=train_transform)
-    # val_dataset = ImageClassificationDataset(category="ASB", split="val", transform=base_transform)
-    # test_dataset = ImageClassificationDataset(category="ASB", split="test", transform=base_transform)
-
-    # Test augmentation
-    if verbose:
-        image_aug, label = train_dataset[0]
-        print(f"Augmented image shape: {image_aug.shape}")
 
     # Create model
     model = CNN()
 
     # Training setup
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if verbose:
-        print(f"Using device: {device}")
 
     model = model.to(device)
     criterion = get_criterion()
     optimizer = get_optimizer(model, lr=best_params["lr"], momentum=best_params["momentum"], mode=best_params["optimizer"])
 
+    # Load data
+    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
+    test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
+
+    train_model(model, train_loader, val_loader, NUM_EPOCHS, optimizer, criterion, device, plot=parsed["plot"], save_model=True)
+    accuracy = test_model(model, test_loader, device)
+
+
     if verbose:
+        image_aug, label = train_dataset[0]
+        print(f"Augmented image shape: {image_aug.shape}")
+        print(f"Using device: {device}")
         print(f"Train dataset size: {len(train_dataset)}")
         print(f"Val dataset size: {len(val_dataset)}")
         print(f"Test dataset size: {len(test_dataset)}")
@@ -171,13 +159,5 @@ def main(best_params):
             print(f"Image dtype: {batch_images.dtype}")
             print(f"Label dtype: {batch_labels.dtype}")
             break
-
-    # Load data
-    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
-    test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
-
-    train_model(model, train_loader, val_loader, NUM_EPOCHS, optimizer, criterion, device, plot=parsed["plot"], save_model=True)
-    accuracy = test_model(model, test_loader, device)
     
     return accuracy
