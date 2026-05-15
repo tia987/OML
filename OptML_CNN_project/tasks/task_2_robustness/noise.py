@@ -1,5 +1,7 @@
 import torch
 
+import matplotlib.pyplot as plt
+
 from src.loader import *
 from torch.utils.data import DataLoader
 from tasks.task_0_baseline_cnn import *
@@ -8,6 +10,23 @@ from tasks.task_0_baseline_cnn import *
 def add_gaussian_noise(images, sigma):
     noise = torch.randn_like(images)*sigma
     return torch.clamp(images+noise, 0, 1)
+
+def plot_noise(noise_sigma, accuracy):
+    # 3. Plotting and Saving
+    plt.figure(figsize=(10, 6))
+    plt.plot(noise_sigma, accuracy, marker='o', linestyle='-', color='b', linewidth=2)
+    
+    plt.title('Model Accuracy vs. Gaussian Noise Level', fontsize=14)
+    plt.xlabel('Noise Sigma)', fontsize=12)
+    plt.ylabel('Test Accuracy (%)', fontsize=12)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    
+    # Save the plot
+    save_path = "./tasks/task_2_robustness/figures/noise_robustness_plot.png"
+    plt.savefig(save_path)
+    print(f"--- Plot saved as {save_path} ---")
+    
+    plt.show()
 
 def noise(best_params):
     """Function to train the final model using the best found parameters."""
@@ -43,12 +62,19 @@ def noise(best_params):
     test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
     accuracy = []
+    
+    train_model(model, train_loader, val_loader, NUM_EPOCHS, optimizer, criterion, device, plot=parsed["plot"], save_model=False)
 
+    # Add the noises to the images, and check how noise deteriorate the prediction quality
     for sigma in noise_sigma:
-        test_loader = add_gaussian_noise(test_loader, sigma)
+        images = test_dataset.tensors[0]
+        labels = test_dataset.tensors[1]
+        images = add_gaussian_noise(images, sigma)
 
-        train_model(model, train_loader, val_loader, NUM_EPOCHS, optimizer, criterion, device, plot=parsed["plot"], save_model=True)
-        accuracy.append(test_model(model, test_loader, device))
+        noise_dataset = torch.utils.data.TensorDataset(images, labels)
+        noise_loader = DataLoader(noise_dataset, batch_size=BATCH_SIZE, shuffle=False)
+
+        accuracy.append(test_model(model, noise_loader, device))
 
     if verbose:
         image_aug, label = train_dataset[0]
@@ -65,4 +91,8 @@ def noise(best_params):
             print(f"Label dtype: {batch_labels.dtype}")
             break
     
+    plot_noise(noise_sigma, accuracy)
+    
+    print(accuracy)
+
     return accuracy
