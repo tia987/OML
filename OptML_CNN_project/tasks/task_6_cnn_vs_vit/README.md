@@ -15,8 +15,8 @@ Compare the performance, efficiency, and training dynamics of a custom-built Con
 | Metric | CNN (Baseline) | ViT (Pre-trained) |
 | :--- | :--- | :--- |
 | **Test Accuracy** | 96.81% | 97.87% |
-| **Total Parameters** | `[Insert CNN Params]` | ~86.5 M |
-| **Trainable Parameters** | `[Insert CNN Params]` | 1,538 (Linear Head) |
+| **Total Parameters** | 2,211,618 (~2.21 M) | ~86.5 M |
+| **Trainable Parameters** | 2,211,618 (~2.21 M) | 1,538 (Linear Head) |
 | **Training Time** | 404.68 min | 4731.95 sec (~78.87 min) |
 
 *Refer to the training curves below for loss and validation trends:*
