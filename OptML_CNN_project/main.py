@@ -9,17 +9,17 @@ from tasks.task_0_baseline_cnn import *
 from tasks.task_1_hyperparameter import *
 from tasks.task_2_robustness import *
 from tasks.task_4_confusion_matrix import *
+from tasks.task_6_cnn_vs_vit import *
 
 from optuna.visualization.matplotlib import (
     plot_optimization_history,
     plot_param_importances,
 )
 
-
 if __name__ == "__main__":
     # Get parser arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("-mode", "--mode", choices=["task0", "task1", "task2", "task4"], default="search", help="Select task (taskX)")
+    parser.add_argument("-mode", "--mode", choices=["task0", "task1", "task2", "task4", "task6"], default="search", help="Select task (taskX)")
     parser.add_argument("-n_trials", "--n_trials", type=int, default=10, help="Number of trials to add.")
     args = parser.parse_args()
 
@@ -77,5 +77,12 @@ if __name__ == "__main__":
         try:
             study = optuna.load_study(study_name=study_name, storage=best_search_optuna)
             confusion(study.best_params)
+        except KeyError:
+            print("No existing study found. Please run with --mode search first.")
+
+    elif args.mode == "task6":
+        try:
+            study = optuna.load_study(study_name=study_name, storage=best_search_optuna)
+            vit(study.best_params)
         except KeyError:
             print("No existing study found. Please run with --mode search first.")
