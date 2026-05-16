@@ -24,7 +24,7 @@ The baseline model achieved high accuracy relatively quickly, though it required
 - **Total Training Time**: `404.68 minutes`
 
 *Refer to the training curves below for loss and validation trends:*
-* ![Training Progress](./results/Figure_1.png)
+* ![Training Progress](./results/CNN.png)
 
 *(The plot illustrates the convergence of training and validation loss, ensuring the model isn't significantly over-fitting before reaching the final epochs.)*
 
