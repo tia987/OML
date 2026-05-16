@@ -13,20 +13,20 @@ class PretrainedViTClassifier(nn.Module):
     def __init__(self, num_classes=2):
         super(PretrainedViTClassifier, self).__init__()
         # Load the standard pre-trained ViT
-        weights = models.ViT_B_16_Weights.DEFAULT
+        weights = models.ViT_B_16_Weights.DEFAULT1
         self.vit = models.vit_b_16(weights=weights)
-        
-        in_features = self.vit.heads.head.in_features
-        self.vit.heads.head = nn.Linear(in_features, num_classes)
 
         for param in self.vit.parameters():
             param.requires_grad = False
+        
+        in_features = self.vit.heads.head.in_features
+        self.vit.heads.head = nn.Linear(in_features, num_classes)
 
     def forward(self, x):
         # Resize from 128x128 to 224x224
         x = F.interpolate(x, size=(224, 224), mode='bilinear', align_corners=False)
         # Duplicate grayscale channel to 3 channels (B, 3, 224, 224)
-        x = x.repeat(1, 3, 1, 1)     
+        x = x.repeat(1, 3, 1, 1)
         # Pass through the ViT
         return self.vit(x)
 
