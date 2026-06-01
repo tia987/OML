@@ -40,7 +40,7 @@ def generateSamples(config, nSamples):
     return sampleLst
 
 def build_command(sample, journalFile, freeCadpath):
-    freecad_exec_path = os.path.join(freeCadpath,  r"FreeCAD.app/Contents/MacOS/FreeCAD")
+    freecad_exec_path = os.path.join(freeCadpath,  r"FreeCAD.app/Contents/Resources/bin/freecadcmd")
     cmd = [freecad_exec_path, journalFile, json.dumps(sample),] 
     return cmd
 
