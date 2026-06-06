@@ -1,5 +1,11 @@
 import os
 
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from matplotlib.path import Path
+
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.transforms as transforms
@@ -10,8 +16,8 @@ plt.rc('axes', prop_cycle=cycler * plt.cycler(lw=[2], marker="o"))
 def plot(n_generations, results_list, show=False):
     os.makedirs('results', exist_ok=True)
     plt.figure(figsize=(8, 5))
-    for results in results_list:
-        plt.plot(range(1, n_generations + 1), results)
+    for results, label_text in results_list:
+        plt.plot(range(1, n_generations + 1), results, marker='o', linestyle='-', label=label_text)
     plt.title('Optimizer Convergence')
     plt.xlabel('Generation / Iteration')
     plt.ylabel('Best Feasible Absorbed Energy')
@@ -20,17 +26,17 @@ def plot(n_generations, results_list, show=False):
     plt.savefig(os.path.join('results', 'comparison.png'))
     if show: plt.show()
 
-def plot_plate(best_result, name='', r1=15, r2=10, slot_L=40, slot_R=10, plate_L=100):
-    x1 = 30 - best_result['x1']
+def plot_plate(best_result, name='', r1=9, r2=6, slot_L=25, slot_R=7.5, plate_L=60):
+    x1 = 30 + best_result['x1']
     y1 = 30 + best_result['y1']
-    x2 = 30 + best_result['x2']
+    x2 = 30 - best_result['x2']
     y2 = 30 + best_result['y2']
     x3 = 30 - best_result['x3']
     y3 = 30 - best_result['y3']
-    angle = best_result['angle']
+    angle = -best_result['angle']
 
     os.makedirs('results', exist_ok=True)
-    fig, ax = plt.subplots(figsize=(6, 6))
+    fig, ax = plt.subplots(figsize=(5, 5))
     
     # Base plate
     ax.add_patch(patches.Rectangle((0, 0), plate_L, plate_L, facecolor='#f5d996', edgecolor='black', lw=2))
@@ -56,7 +62,7 @@ def plot_plate(best_result, name='', r1=15, r2=10, slot_L=40, slot_R=10, plate_L
     
     # We can just draw the circles and the rectangle, and use a white face and black edge. 
     # To avoid internal lines, we can use a PathPatch
-    from matplotlib.path import Path
+    
     
     # vertices
     v = [
@@ -91,12 +97,69 @@ def plot_plate(best_result, name='', r1=15, r2=10, slot_L=40, slot_R=10, plate_L
     cover.set_transform(t)
     ax.add_patch(cover)
 
-    ax.set_xlim(-10, plate_L + 10)
-    ax.set_ylim(-10, plate_L + 10)
+    ax.set_xlim(-1, plate_L + 1)
+    ax.set_ylim(-1, plate_L + 1)
     ax.set_aspect('equal')
-    ax.set_title(f"Geometry Layout\nAngle: {angle}°")
+    # ax.set_title(f"Geometry Layout\nAngle: {angle}°")
     ax.axis('off')
     
     save_name = "slab_layout" + name + ".png"
     plt.savefig(os.path.join('results', save_name))
     plt.close()
+
+def data_analysis(data="./data.csv"):
+    # Read the data into a pandas dataframe
+    df = pd.read_csv(data)
+
+    # 2. Clean the repeating headers from the text block
+    # Remove rows where 'angle' column contains the literal string 'angle'
+    df = df[df['angle'] != 'angle']
+
+    # Convert all remaining rows to numeric values
+    df = df.apply(pd.to_numeric)
+
+    # 3. Create the 2x2 multi-panel plot
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+
+    # Panel 1: Angle vs Energy Objective
+    sns.scatterplot(
+    data=df, 
+    x='angle', 
+    y='energy_objective', 
+    hue='stress_constraint', 
+    palette='viridis', 
+    ax=axes[0, 0]
+    )
+    axes[0, 0].set_title('Energy Objective vs. Angle')
+
+    # Panel 2: Stress Constraint vs Penalized Score
+    sns.scatterplot(
+    data=df, 
+    x='stress_constraint', 
+    y='penalized_score', 
+    color='darkred', 
+    ax=axes[0, 1]
+    )
+    axes[0, 1].set_title('Penalized Score vs. Stress Constraint')
+
+    # Panel 3: Boxplot of structural parameters
+    sns.boxplot(
+    data=df[['x1', 'x2', 'x3', 'y1', 'y2', 'y3']], 
+    ax=axes[1, 0]
+    )
+    axes[1, 0].set_title('Distribution of Spatial Parameters (x1-y3)')
+
+    # Panel 4: Correlation Matrix Heatmap
+    corr = df[['angle', 'energy_objective', 'penalized_score', 'stress_constraint']].corr()
+    sns.heatmap(
+    corr, 
+    annot=True, 
+    cmap='coolwarm', 
+    ax=axes[1, 1], 
+    fmt='.2f'
+    )
+    axes[1, 1].set_title('Correlation Map of Key Metrics')
+
+    # 4. Final layout adjustment and display
+    plt.tight_layout()
+    plt.savefig(os.path.join('results', 'data_analysis.png'))

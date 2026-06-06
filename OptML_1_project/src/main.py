@@ -9,7 +9,7 @@ import csv
 import scipy.stats.qmc as qmc
 import matplotlib.pyplot as plt
 
-from plotter import plot, plot_plate
+from plotter import plot, plot_plate, data_analysis
 
 n_generations = 15        # Number of iterations to find the best layout
 stress_limit = 275.0     # Constraint from project description
@@ -63,7 +63,6 @@ def calculate_objective(sample, freeCAD_journal, freeCADpath):
         res = subprocess.run(cmd, check=True, capture_output=True, text=True)# creationflags=subprocess.CREATE_NO_WINDOW)
         assert res.returncode == 0 , "freeCAD script routine failed"
         # retrieve the absorbed energy from the logged string
-        # make sure the last thing you log in the full_journal_fc.py script is the 
         absorbed_energy = float(res.stdout.split('\n')[-3])
         max_stress = float(res.stdout.split('\n')[-2])
     # catch exceptions and log failed samples. DB entry at index (sampleId) is invalid
@@ -170,7 +169,6 @@ def gen_algo(verbose=False, mutation_rate=0.2, n_population=10):
         
         best_energy_history.append(best_valid_energy)
 
-        # 
         # Setup next generation, keep top 3 performers as parents
         parents = results[:3]
         new_population = []
@@ -182,14 +180,14 @@ def gen_algo(verbose=False, mutation_rate=0.2, n_population=10):
             parent = np.random.choice(parents)
             child = {}
             for k, bounds in parameters.items():
-                # Add a small random shift to parent's coordinate
+                # Add random shift to parent's coordinate
                 bound_range = bounds[1] - bounds[0]
                 mutation = np.random.normal(0, mutation_rate * bound_range)
                 new_value = parent[k] + mutation
                 # Ensure new value doesn't clip outside the boundaries defined in config.json
                 child[k] = float(np.clip(new_value, bounds[0], bounds[1]))
             new_population.append(child)
-        # The child generation now becomes our main population for the next loop run
+        # As children as new population
         population = new_population
 
     # Optimization complete: Display final results
@@ -203,7 +201,7 @@ def gen_algo(verbose=False, mutation_rate=0.2, n_population=10):
     # Save results into csv file
     save_to_csv(results)
 
-    # Generate the Convergence Plot (Fulfills report deliverable requirement)
+    # Generate Convergence Plot
     if verbose:
         plt.figure(figsize=(8, 5))
         plt.plot(range(1, n_generations + 1), best_energy_history, marker='o', color='b')
@@ -277,10 +275,10 @@ def base(verbose=False):
 
 if __name__ == "__main__":
     result_0, base_best = base()
-    result_1, gen_best = gen_algo()
-    result_2, gen_best = gen_algo(n_population=20)
-    result_3, gen_best = gen_algo(mutation_rate=0.5)
-    result_4, gen_best = gen_algo(mutation_rate=0.7, n_population=30)
+    result_1, gen_best_1 = gen_algo()
+    result_2, gen_best_2 = gen_algo(n_population=20)
+    result_3, gen_best_3 = gen_algo(mutation_rate=0.5)
+    result_4, gen_best_4 = gen_algo(mutation_rate=0.7, n_population=30)
 
     results_list = [
         (result_0, "Latin Hypercube Baseline"),
@@ -291,4 +289,5 @@ if __name__ == "__main__":
 
     plot(n_generations, results_list)
     plot_plate(base_best, "_base_best")
-    plot_plate(gen_best, "_gen_best")
+    plot_plate(gen_best_2, "_gen_best")
+    data_analysis()
